@@ -171,7 +171,7 @@ function getPropertyText(property) {
     case "date":
       return property.date?.start || "";
     case "checkbox":
-      return property.checkbox ? "Так" : "Ні";
+      return property.checkbox ? "Yes" : "No";
     case "formula":
       return getFormulaText(property.formula);
     default:
