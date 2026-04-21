@@ -10,6 +10,13 @@ const state = {
   selectedId: null,
   query: "",
   modalOpen: false,
+  virtualization: {
+    layout: null,
+    renderedKeys: new Set(),
+    rafId: null,
+    resizeObserver: null,
+    bufferRows: 2,
+  },
 };
 
 const elements = {
@@ -52,6 +59,7 @@ async function init() {
   state.profiles = items;
   state.filteredProfiles = items.slice();
 
+  setupVirtualization();
   render();
 }
 
@@ -72,6 +80,26 @@ function bindEvents() {
       closeModal();
     }
   });
+
+  window.addEventListener("scroll", requestVirtualRender, { passive: true });
+  window.addEventListener("resize", handleResize, { passive: true });
+}
+
+function setupVirtualization() {
+  if ("ResizeObserver" in window) {
+    state.virtualization.resizeObserver = new ResizeObserver(() => {
+      computeGridLayout();
+      requestVirtualRender();
+    });
+    state.virtualization.resizeObserver.observe(elements.profilesGrid);
+  }
+
+  computeGridLayout();
+}
+
+function handleResize() {
+  computeGridLayout();
+  requestVirtualRender();
 }
 
 async function fetchProfiles() {
@@ -116,6 +144,8 @@ async function fetchProfiles() {
 function handleSearchInput(event) {
   state.query = event.target.value.trim().toLowerCase();
   applyFilters();
+  computeGridLayout();
+  clearVirtualizedCards();
   renderGrid();
 
   if (state.modalOpen && state.selectedId) {
@@ -157,7 +187,7 @@ function selectProfile(id) {
   state.selectedId = id;
   openModal();
   renderDetail();
-  highlightActiveCard();
+  refreshVisibleCardsActiveState();
 }
 
 function selectRandomProfile() {
@@ -169,10 +199,10 @@ function selectRandomProfile() {
 
   openModal();
   renderDetail();
-  highlightActiveCard();
+  requestVirtualRender(true);
 
-  const targetCard = elements.profilesGrid.querySelector(`[data-profile-id="${randomProfile.id}"]`);
-  targetCard?.scrollIntoView({ behavior: "smooth", block: "center" });
+  const index = state.filteredProfiles.findIndex((p) => p.id === randomProfile.id);
+  scrollToVirtualCard(index);
 }
 
 function openModal() {
@@ -202,7 +232,7 @@ function closeModal() {
     }
   }, 420);
 
-  highlightActiveCard();
+  refreshVisibleCardsActiveState();
 }
 
 function render() {
@@ -213,11 +243,38 @@ function render() {
   }
 }
 
-function renderGrid() {
-  const items = state.filteredProfiles;
-  elements.profilesGrid.innerHTML = "";
+function computeGridLayout() {
+  const grid = elements.profilesGrid;
+  const gridWidth = grid.clientWidth || grid.getBoundingClientRect().width || 1240;
+  const gap = getGridGap();
+  const minCardWidth = getMinCardWidth();
 
-  if (!items.length) {
+  const columns = Math.max(1, Math.floor((gridWidth + gap) / (minCardWidth + gap)));
+  const cardWidth = Math.floor((gridWidth - gap * (columns - 1)) / columns);
+  const cardHeight = Math.round(cardWidth * (16 / 9));
+  const rowHeight = cardHeight + gap;
+  const totalRows = Math.ceil(state.filteredProfiles.length / columns);
+  const totalHeight = Math.max(0, totalRows * rowHeight - gap);
+
+  state.virtualization.layout = {
+    gridWidth,
+    gap,
+    columns,
+    cardWidth,
+    cardHeight,
+    rowHeight,
+    totalRows,
+    totalHeight,
+  };
+
+  grid.style.height = `${totalHeight}px`;
+}
+
+function renderGrid() {
+  computeGridLayout();
+  clearVirtualizedCards();
+
+  if (!state.filteredProfiles.length) {
     elements.profilesGrid.innerHTML = `
       <div class="status-message">
         No results found for your search.
@@ -226,53 +283,165 @@ function renderGrid() {
     return;
   }
 
-  const fragment = document.createDocumentFragment();
+  requestVirtualRender(true);
+}
 
-  items.forEach((profile) => {
-    const card = document.createElement("article");
-    card.className = `profile-card${profile.id === state.selectedId && state.modalOpen ? " is-active" : ""}`;
-    card.dataset.profileId = profile.id;
-    card.tabIndex = 0;
-    card.setAttribute("role", "button");
-    card.setAttribute("aria-label", `Open profile ${profile.name}`);
+function requestVirtualRender(force = false) {
+  if (state.virtualization.rafId) {
+    cancelAnimationFrame(state.virtualization.rafId);
+  }
 
-    const photoUrl = profile.photo || createFallbackImage(profile.name);
+  state.virtualization.rafId = requestAnimationFrame(() => {
+    state.virtualization.rafId = null;
+    renderVisibleCards(force);
+  });
+}
 
-    card.innerHTML = `
-      <div class="profile-card-photo-wrap">
-        <img
-          class="profile-card-photo"
-          src="${escapeHtml(photoUrl)}"
-          alt="${escapeHtml(profile.name)}"
-          loading="lazy"
-        />
-      </div>
-      <div class="profile-card-overlay">
-        <h3 class="profile-card-name">${escapeHtml(profile.name)}</h3>
-        <div class="profile-card-sub">
-          ${escapeHtml(compactMeta(profile))}
-        </div>
-        <div class="profile-card-snippet">
-          ${escapeHtml(trimText(profile.note || profile.text || "No description", 120))}
-        </div>
-        <span class="profile-card-badge">
-          ${escapeHtml(profile.placeOfMinistry || profile.church || "Profile")}
-        </span>
-      </div>
-    `;
+function renderVisibleCards(force = false) {
+  const grid = elements.profilesGrid;
+  const items = state.filteredProfiles;
+  const layout = state.virtualization.layout;
 
-    card.addEventListener("click", () => selectProfile(profile.id));
-    card.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        selectProfile(profile.id);
-      }
-    });
+  if (!layout || !items.length) return;
 
-    fragment.appendChild(card);
+  const gridRect = grid.getBoundingClientRect();
+  const viewportTop = window.scrollY;
+  const viewportBottom = viewportTop + window.innerHeight;
+
+  const gridTop = window.scrollY + gridRect.top;
+  const gridBottom = gridTop + layout.totalHeight;
+
+  if (!force && (viewportBottom < gridTop || viewportTop > gridBottom)) {
+    clearVirtualizedCards();
+    return;
+  }
+
+  const visibleTop = Math.max(0, viewportTop - gridTop);
+  const visibleBottom = Math.min(layout.totalHeight, viewportBottom - gridTop);
+
+  const startRow = Math.max(
+    0,
+    Math.floor(visibleTop / layout.rowHeight) - state.virtualization.bufferRows
+  );
+  const endRow = Math.min(
+    layout.totalRows - 1,
+    Math.ceil(visibleBottom / layout.rowHeight) + state.virtualization.bufferRows
+  );
+
+  const startIndex = startRow * layout.columns;
+  const endIndex = Math.min(items.length, (endRow + 1) * layout.columns);
+
+  const nextKeys = new Set();
+
+  for (let index = startIndex; index < endIndex; index += 1) {
+    const profile = items[index];
+    const key = profile.id;
+    nextKeys.add(key);
+
+    let card = grid.querySelector(`[data-profile-id="${cssEscape(profile.id)}"]`);
+    if (!card) {
+      card = createProfileCard(profile);
+      grid.appendChild(card);
+    }
+
+    positionCard(card, index, layout);
+    syncCardContent(card, profile);
+    card.classList.toggle("is-active", state.modalOpen && profile.id === state.selectedId);
+  }
+
+  [...state.virtualization.renderedKeys].forEach((key) => {
+    if (!nextKeys.has(key)) {
+      const node = grid.querySelector(`[data-profile-id="${cssEscape(key)}"]`);
+      if (node) node.remove();
+    }
   });
 
-  elements.profilesGrid.appendChild(fragment);
+  state.virtualization.renderedKeys = nextKeys;
+}
+
+function createProfileCard(profile) {
+  const card = document.createElement("article");
+  card.className = "profile-card";
+  card.dataset.profileId = profile.id;
+  card.tabIndex = 0;
+  card.setAttribute("role", "button");
+  card.setAttribute("aria-label", `Open profile ${profile.name}`);
+
+  card.addEventListener("click", () => selectProfile(profile.id));
+  card.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      selectProfile(profile.id);
+    }
+  });
+
+  return card;
+}
+
+function syncCardContent(card, profile) {
+  const photoUrl = profile.photo || createFallbackImage(profile.name);
+
+  card.innerHTML = `
+    <div class="profile-card-photo-wrap">
+      <img
+        class="profile-card-photo"
+        src="${escapeHtml(photoUrl)}"
+        alt="${escapeHtml(profile.name)}"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+    <div class="profile-card-overlay">
+      <h3 class="profile-card-name">${escapeHtml(profile.name)}</h3>
+      <div class="profile-card-sub">
+        ${escapeHtml(compactMeta(profile))}
+      </div>
+      <div class="profile-card-snippet">
+        ${escapeHtml(trimText(profile.note || profile.text || "No description", 120))}
+      </div>
+      <span class="profile-card-badge">
+        ${escapeHtml(profile.placeOfMinistry || profile.church || "Profile")}
+      </span>
+    </div>
+  `;
+}
+
+function positionCard(card, index, layout) {
+  const column = index % layout.columns;
+  const row = Math.floor(index / layout.columns);
+
+  const left = column * (layout.cardWidth + layout.gap);
+  const top = row * layout.rowHeight;
+
+  card.style.width = `${layout.cardWidth}px`;
+  card.style.height = `${layout.cardHeight}px`;
+  card.style.transform = `translate(${left}px, ${top}px)`;
+}
+
+function clearVirtualizedCards() {
+  elements.profilesGrid.querySelectorAll(".profile-card").forEach((node) => node.remove());
+  state.virtualization.renderedKeys.clear();
+}
+
+function scrollToVirtualCard(index) {
+  const layout = state.virtualization.layout;
+  if (!layout || index < 0) return;
+
+  const row = Math.floor(index / layout.columns);
+  const top = row * layout.rowHeight;
+  const gridTop = window.scrollY + elements.profilesGrid.getBoundingClientRect().top;
+
+  window.scrollTo({
+    top: Math.max(0, gridTop + top - 120),
+    behavior: "smooth",
+  });
+}
+
+function refreshVisibleCardsActiveState() {
+  elements.profilesGrid.querySelectorAll(".profile-card").forEach((card) => {
+    const active = state.modalOpen && card.dataset.profileId === state.selectedId;
+    card.classList.toggle("is-active", active);
+  });
 }
 
 function renderDetail() {
@@ -288,7 +457,8 @@ function renderDetail() {
   elements.detailMaritalStatus.textContent = profile.maritalStatus || "—";
   elements.detailPlaceOfMinistry.textContent = profile.placeOfMinistry || "—";
   elements.detailChurch.textContent = profile.church || "—";
-  elements.detailText.textContent = profile.text || profile.note || "Description is not available yet.";
+  elements.detailText.textContent =
+    profile.text || profile.note || "Description is not available yet.";
   elements.detailSupportButton.href = SUPPORT_URL;
 
   if (profile.note) {
@@ -298,14 +468,6 @@ function renderDetail() {
     elements.detailNote.classList.add("hidden");
     elements.detailNote.textContent = "";
   }
-}
-
-function highlightActiveCard() {
-  const cards = elements.profilesGrid.querySelectorAll(".profile-card");
-  cards.forEach((card) => {
-    const active = state.modalOpen && card.dataset.profileId === state.selectedId;
-    card.classList.toggle("is-active", active);
-  });
 }
 
 function setStatus(message, type = "loading") {
@@ -322,11 +484,7 @@ function setStatus(message, type = "loading") {
 }
 
 function compactMeta(profile) {
-  return [
-    profile.age ? `${profile.age}` : "",
-    profile.maritalStatus || "",
-    profile.church || "",
-  ]
+  return [profile.age ? `${profile.age}` : "", profile.maritalStatus || "", profile.church || ""]
     .filter(Boolean)
     .join(" • ");
 }
@@ -370,4 +528,23 @@ function createFallbackImage(name) {
   `.trim();
 
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function getGridGap() {
+  const width = window.innerWidth;
+  if (width <= 1400) return 24;
+  return 24;
+}
+
+function getMinCardWidth() {
+  const width = window.innerWidth;
+  if (width <= 1400) return 240;
+  return 260;
+}
+
+function cssEscape(value) {
+  if (window.CSS && typeof window.CSS.escape === "function") {
+    return window.CSS.escape(value);
+  }
+  return String(value).replace(/"/g, '\\"');
 }
