@@ -39,7 +39,7 @@ const elements = {
 
 init().catch((error) => {
   console.error(error);
-  setStatus(error.message || "Сталася помилка під час ініціалізації.", "error");
+  setStatus(error.message || "An error occurred during initialization.", "error");
 });
 
 async function init() {
@@ -75,7 +75,7 @@ function bindEvents() {
 }
 
 async function fetchProfiles() {
-  setStatus("Завантаження анкет...", "loading");
+  setStatus("Loading profiles...", "loading");
 
   const response = await fetch(API_BASE_URL, {
     method: "GET",
@@ -90,14 +90,14 @@ async function fetchProfiles() {
   try {
     data = rawText ? JSON.parse(rawText) : null;
   } catch {
-    throw new Error(`Сервер повернув не JSON. Статус: ${response.status}`);
+    throw new Error(`The server returned invalid JSON. Status: ${response.status}`);
   }
 
   if (!response.ok) {
     const message =
       data?.error ||
       data?.message ||
-      `Не вдалося завантажити анкети. Код: ${response.status}`;
+      `Failed to load profiles. Code: ${response.status}`;
     throw new Error(message);
   }
 
@@ -105,8 +105,8 @@ async function fetchProfiles() {
 
   setStatus(
     items.length
-      ? `Знайдено анкет: ${items.length}`
-      : "Немає доступних анкет зі статусом “Готово”.",
+      ? `Profiles found: ${items.length}`
+      : 'No profiles with the "Ready" status are available.',
     items.length ? "success" : "loading"
   );
 
@@ -220,7 +220,7 @@ function renderGrid() {
   if (!items.length) {
     elements.profilesGrid.innerHTML = `
       <div class="status-message">
-        За вашим запитом нічого не знайдено.
+        No results found for your search.
       </div>
     `;
     return;
@@ -234,7 +234,7 @@ function renderGrid() {
     card.dataset.profileId = profile.id;
     card.tabIndex = 0;
     card.setAttribute("role", "button");
-    card.setAttribute("aria-label", `Відкрити анкету ${profile.name}`);
+    card.setAttribute("aria-label", `Open profile ${profile.name}`);
 
     const photoUrl = profile.photo || createFallbackImage(profile.name);
 
@@ -253,10 +253,10 @@ function renderGrid() {
           ${escapeHtml(compactMeta(profile))}
         </div>
         <div class="profile-card-snippet">
-          ${escapeHtml(trimText(profile.note || profile.text || "Без опису", 120))}
+          ${escapeHtml(trimText(profile.note || profile.text || "No description", 120))}
         </div>
         <span class="profile-card-badge">
-          ${escapeHtml(profile.placeOfMinistry || profile.church || "Анкета")}
+          ${escapeHtml(profile.placeOfMinistry || profile.church || "Profile")}
         </span>
       </div>
     `;
@@ -283,12 +283,12 @@ function renderDetail() {
 
   elements.detailPhoto.src = photoUrl;
   elements.detailPhoto.alt = profile.name;
-  elements.detailName.textContent = profile.name || "Без імені";
+  elements.detailName.textContent = profile.name || "Unnamed";
   elements.detailAge.textContent = profile.age || "—";
   elements.detailMaritalStatus.textContent = profile.maritalStatus || "—";
   elements.detailPlaceOfMinistry.textContent = profile.placeOfMinistry || "—";
   elements.detailChurch.textContent = profile.church || "—";
-  elements.detailText.textContent = profile.text || profile.note || "Опис поки відсутній.";
+  elements.detailText.textContent = profile.text || profile.note || "Description is not available yet.";
   elements.detailSupportButton.href = SUPPORT_URL;
 
   if (profile.note) {
@@ -347,7 +347,7 @@ function escapeHtml(value) {
 }
 
 function createFallbackImage(name) {
-  const initials = String(name || "Людина")
+  const initials = String(name || "Person")
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
