@@ -408,8 +408,12 @@ input {
 
 .profiles-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+
+  max-width: 1240px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .profile-card {
@@ -708,7 +712,13 @@ input {
 
 @media (max-width: 1400px) {
   .profiles-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+
+    max-width: 1240px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
@@ -769,7 +779,13 @@ input {
   }
 
   .profiles-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+
+    max-width: 1240px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .profile-modal {
