@@ -1,4 +1,3 @@
-
 const SUPPORT_URL =
   window.APP_CONFIG?.supportUrl ||
   "https://give.tithe.ly/?formId=3966c1ff-6865-11ee-90fc-1260ab546d11&locationId=3bff1725-a576-4eec-bcef-43283ffbbbfc&fundId=83ca1801-4d23-4e39-bc14-f4d2be128809&amount=2500";
@@ -9,11 +8,12 @@ const state = {
   profiles: [],
   filteredProfiles: [],
   selectedId: null,
-  loading: true,
   query: "",
+  modalOpen: false,
 };
 
 const elements = {
+  mainShell: document.getElementById("mainShell"),
   profilesGrid: document.getElementById("profilesGrid"),
   statusMessage: document.getElementById("statusMessage"),
   searchInput: document.getElementById("searchInput"),
@@ -21,9 +21,11 @@ const elements = {
   randomProfileButtonDetail: document.getElementById("randomProfileButtonDetail"),
   scrollToProfilesButton: document.getElementById("scrollToProfilesButton"),
   globalSupportButton: document.getElementById("globalSupportButton"),
-  detailEmpty: document.getElementById("detailEmpty"),
-  detailView: document.getElementById("detailView"),
-  mobileBackButton: document.getElementById("mobileBackButton"),
+
+  modalBackdrop: document.getElementById("modalBackdrop"),
+  profileModal: document.getElementById("profileModal"),
+  closeModalButton: document.getElementById("closeModalButton"),
+
   detailPhoto: document.getElementById("detailPhoto"),
   detailName: document.getElementById("detailName"),
   detailNote: document.getElementById("detailNote"),
@@ -49,14 +51,7 @@ async function init() {
   const items = await fetchProfiles();
   state.profiles = items;
   state.filteredProfiles = items.slice();
-  state.loading = false;
 
-  if (!items.length) {
-    render();
-    return;
-  }
-
-  state.selectedId = items[0].id;
   render();
 }
 
@@ -67,8 +62,14 @@ function bindEvents() {
   elements.scrollToProfilesButton.addEventListener("click", () => {
     document.getElementById("profiles")?.scrollIntoView({ behavior: "smooth" });
   });
-  elements.mobileBackButton.addEventListener("click", () => {
-    document.getElementById("profiles")?.scrollIntoView({ behavior: "smooth" });
+
+  elements.closeModalButton.addEventListener("click", closeModal);
+  elements.modalBackdrop.addEventListener("click", closeModal);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && state.modalOpen) {
+      closeModal();
+    }
   });
 }
 
@@ -114,7 +115,14 @@ async function fetchProfiles() {
 function handleSearchInput(event) {
   state.query = event.target.value.trim().toLowerCase();
   applyFilters();
-  render();
+  renderGrid();
+
+  if (state.modalOpen && state.selectedId) {
+    const stillExists = state.filteredProfiles.some((p) => p.id === state.selectedId);
+    if (!stillExists) {
+      closeModal();
+    }
+  }
 }
 
 function applyFilters() {
@@ -122,7 +130,6 @@ function applyFilters() {
 
   if (!query) {
     state.filteredProfiles = state.profiles.slice();
-    ensureSelectedProfileExists();
     return;
   }
 
@@ -135,6 +142,7 @@ function applyFilters() {
       profile.church,
       profile.note,
       profile.text,
+      profile.role,
     ]
       .filter(Boolean)
       .join(" ")
@@ -142,20 +150,11 @@ function applyFilters() {
 
     return haystack.includes(query);
   });
-
-  ensureSelectedProfileExists();
-}
-
-function ensureSelectedProfileExists() {
-  const exists = state.filteredProfiles.some((profile) => profile.id === state.selectedId);
-
-  if (!exists) {
-    state.selectedId = state.filteredProfiles[0]?.id || null;
-  }
 }
 
 function selectProfile(id) {
   state.selectedId = id;
+  openModal();
   renderDetail();
   highlightActiveCard();
 }
@@ -167,6 +166,7 @@ function selectRandomProfile() {
   const randomProfile = state.filteredProfiles[randomIndex];
   state.selectedId = randomProfile.id;
 
+  openModal();
   renderDetail();
   highlightActiveCard();
 
@@ -174,9 +174,42 @@ function selectRandomProfile() {
   targetCard?.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
+function openModal() {
+  state.modalOpen = true;
+  elements.profileModal.classList.remove("hidden");
+  elements.modalBackdrop.classList.remove("hidden");
+
+  requestAnimationFrame(() => {
+    elements.profileModal.classList.add("is-visible");
+    elements.modalBackdrop.classList.add("is-visible");
+    elements.mainShell.classList.add("is-blurred");
+    elements.profileModal.setAttribute("aria-hidden", "false");
+  });
+}
+
+function closeModal() {
+  state.modalOpen = false;
+  elements.profileModal.classList.remove("is-visible");
+  elements.modalBackdrop.classList.remove("is-visible");
+  elements.mainShell.classList.remove("is-blurred");
+  elements.profileModal.setAttribute("aria-hidden", "true");
+
+  setTimeout(() => {
+    if (!state.modalOpen) {
+      elements.profileModal.classList.add("hidden");
+      elements.modalBackdrop.classList.add("hidden");
+    }
+  }, 420);
+
+  highlightActiveCard();
+}
+
 function render() {
   renderGrid();
-  renderDetail();
+
+  if (state.selectedId && state.modalOpen) {
+    renderDetail();
+  }
 }
 
 function renderGrid() {
@@ -196,7 +229,7 @@ function renderGrid() {
 
   items.forEach((profile) => {
     const card = document.createElement("article");
-    card.className = `profile-card${profile.id === state.selectedId ? " is-active" : ""}`;
+    card.className = `profile-card${profile.id === state.selectedId && state.modalOpen ? " is-active" : ""}`;
     card.dataset.profileId = profile.id;
     card.tabIndex = 0;
     card.setAttribute("role", "button");
@@ -205,12 +238,14 @@ function renderGrid() {
     const photoUrl = profile.photo || createFallbackImage(profile.name);
 
     card.innerHTML = `
-      <img
-        class="profile-card-photo"
-        src="${escapeHtml(photoUrl)}"
-        alt="${escapeHtml(profile.name)}"
-        loading="lazy"
-      />
+      <div class="profile-card-photo-wrap">
+        <img
+          class="profile-card-photo"
+          src="${escapeHtml(photoUrl)}"
+          alt="${escapeHtml(profile.name)}"
+          loading="lazy"
+        />
+      </div>
       <div class="profile-card-overlay">
         <h3 class="profile-card-name">${escapeHtml(profile.name)}</h3>
         <div class="profile-card-sub">
@@ -241,15 +276,7 @@ function renderGrid() {
 
 function renderDetail() {
   const profile = state.filteredProfiles.find((item) => item.id === state.selectedId) || null;
-
-  if (!profile) {
-    elements.detailEmpty.classList.remove("hidden");
-    elements.detailView.classList.add("hidden");
-    return;
-  }
-
-  elements.detailEmpty.classList.add("hidden");
-  elements.detailView.classList.remove("hidden");
+  if (!profile) return;
 
   const photoUrl = profile.photo || createFallbackImage(profile.name);
 
@@ -275,7 +302,8 @@ function renderDetail() {
 function highlightActiveCard() {
   const cards = elements.profilesGrid.querySelectorAll(".profile-card");
   cards.forEach((card) => {
-    card.classList.toggle("is-active", card.dataset.profileId === state.selectedId);
+    const active = state.modalOpen && card.dataset.profileId === state.selectedId;
+    card.classList.toggle("is-active", active);
   });
 }
 
@@ -294,7 +322,7 @@ function setStatus(message, type = "loading") {
 
 function compactMeta(profile) {
   return [
-    profile.age ? `${profile.age} р.` : "",
+    profile.age ? `${profile.age}` : "",
     profile.maritalStatus || "",
     profile.church || "",
   ]
@@ -326,17 +354,17 @@ function createFallbackImage(name) {
     .join("");
 
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+    <svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200">
       <defs>
         <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
           <stop offset="0%" stop-color="#dfe7ff"/>
           <stop offset="100%" stop-color="#eef3ff"/>
         </linearGradient>
       </defs>
-      <rect width="800" height="1000" fill="url(#bg)"/>
-      <circle cx="400" cy="360" r="140" fill="#b9c9ff"/>
-      <path d="M180 820c30-140 130-220 220-220s190 80 220 220" fill="#b9c9ff"/>
-      <text x="400" y="940" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="700" fill="#17377d">${initials}</text>
+      <rect width="800" height="1200" fill="url(#bg)"/>
+      <circle cx="400" cy="380" r="150" fill="#b9c9ff"/>
+      <path d="M160 940c40-170 145-260 240-260s200 90 240 260" fill="#b9c9ff"/>
+      <text x="400" y="1080" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="700" fill="#17377d">${initials}</text>
     </svg>
   `.trim();
 
