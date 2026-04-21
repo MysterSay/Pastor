@@ -401,10 +401,13 @@ function updateCardsOnScroll() {
 
   const viewportHeight = window.innerHeight;
 
-  const fadeStart = 3;   // тут починається м’яке згасання біля верху
-  const fadeEnd = -35;    // тут плитка майже повністю зникла
-  const revealStart = viewportHeight - 10;   // коли входить знизу
-  const revealEnd = viewportHeight - 140;    // коли вже повністю проявлена
+  // Верх: ефект починається майже біля самого краю
+  const fadeStart = 0;
+  const fadeDistance = 70;
+
+  // Низ: плавна поява трохи перед входом
+  const revealStart = viewportHeight - 80;
+  const revealDistance = 140;
 
   cards.forEach((card) => {
     const rect = card.getBoundingClientRect();
@@ -414,21 +417,24 @@ function updateCardsOnScroll() {
     let scale = 1;
     let blur = 0;
 
-    // ЗГАСАННЯ ВГОРІ
-    if (rect.top <= fadeStart) {
-      const progress = clamp((fadeStart - rect.top) / (fadeStart - fadeEnd), 0, 1);
+    // Верхнє м’яке згасання
+    if (rect.top < fadeStart) {
+      const progress = clamp(Math.abs(rect.top - fadeStart) / fadeDistance, 0, 1);
 
-      opacity = lerp(1, 0.42, easeInOutCubic(progress));
-      translateY = lerp(0, -4, easeOutCubic(progress));
-      scale = lerp(1, 0.992, easeOutCubic(progress));
-      blur = lerp(0, 0.6, easeOutCubic(progress));
-    } else if (rect.top >= revealEnd) {
-      const progress = clamp((revealStart - rect.top) / (revealStart - revealEnd), 0, 1);
+      opacity = lerp(1, 0.72, easeOutQuad(progress));
+      translateY = lerp(0, -2, easeOutQuad(progress));
+      scale = lerp(1, 0.996, easeOutQuad(progress));
+      blur = lerp(0, 0.25, easeOutQuad(progress));
+    }
 
-      opacity = lerp(0.7, 1, easeOutCubic(progress));
-      translateY = lerp(12, 0, easeOutCubic(progress));
-      scale = lerp(0.995, 1, easeOutCubic(progress));
-      blur = lerp(0.8, 0, easeOutCubic(progress));
+    // Нижня м’яка поява
+    else if (rect.top > revealStart) {
+      const progress = clamp((viewportHeight - rect.top) / revealDistance, 0, 1);
+
+      opacity = lerp(0.82, 1, easeOutQuad(progress));
+      translateY = lerp(8, 0, easeOutQuad(progress));
+      scale = lerp(0.998, 1, easeOutQuad(progress));
+      blur = lerp(0.35, 0, easeOutQuad(progress));
     }
 
     card.style.opacity = opacity.toFixed(3);
