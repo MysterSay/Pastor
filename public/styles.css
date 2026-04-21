@@ -56,8 +56,8 @@ input {
 
 .site-frame {
   display: grid;
-  grid-template-columns: minmax(16px, 1fr) minmax(320px, 1600px) minmax(16px, 1fr);
-  gap: 20px;
+  grid-template-columns: minmax(40px, 1fr) minmax(320px, 1240px) minmax(40px, 1fr);
+  gap: 24px;
   min-height: 100vh;
   padding: 24px;
 }
