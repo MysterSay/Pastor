@@ -401,8 +401,8 @@ function updateCardsOnScroll() {
 
   const viewportHeight = window.innerHeight;
 
-  const fadeStart = 110;   // тут починається м’яке згасання біля верху
-  const fadeEnd = -220;    // тут плитка майже повністю зникла
+  const fadeStart = 10;   // тут починається м’яке згасання біля верху
+  const fadeEnd = -120;    // тут плитка майже повністю зникла
   const revealStart = viewportHeight - 10;   // коли входить знизу
   const revealEnd = viewportHeight - 140;    // коли вже повністю проявлена
 
