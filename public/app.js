@@ -401,8 +401,8 @@ function updateCardsOnScroll() {
 
   const viewportHeight = window.innerHeight;
 
-  const fadeStart = 10;   // тут починається м’яке згасання біля верху
-  const fadeEnd = -120;    // тут плитка майже повністю зникла
+  const fadeStart = 3;   // тут починається м’яке згасання біля верху
+  const fadeEnd = -35;    // тут плитка майже повністю зникла
   const revealStart = viewportHeight - 10;   // коли входить знизу
   const revealEnd = viewportHeight - 140;    // коли вже повністю проявлена
 
@@ -418,20 +418,17 @@ function updateCardsOnScroll() {
     if (rect.top <= fadeStart) {
       const progress = clamp((fadeStart - rect.top) / (fadeStart - fadeEnd), 0, 1);
 
-      opacity = lerp(1, 0.24, easeInOutCubic(progress));
-      translateY = lerp(0, -8, easeOutCubic(progress));
-      scale = lerp(1, 0.982, easeOutCubic(progress));
-      blur = lerp(0, 1.2, easeOutCubic(progress));
-    }
-
-    // ПОЯВА ЗНИЗУ
-    else if (rect.top >= revealEnd) {
+      opacity = lerp(1, 0.42, easeInOutCubic(progress));
+      translateY = lerp(0, -4, easeOutCubic(progress));
+      scale = lerp(1, 0.992, easeOutCubic(progress));
+      blur = lerp(0, 0.6, easeOutCubic(progress));
+    } else if (rect.top >= revealEnd) {
       const progress = clamp((revealStart - rect.top) / (revealStart - revealEnd), 0, 1);
 
-      opacity = lerp(0.22, 1, easeOutCubic(progress));
-      translateY = lerp(28, 0, easeOutCubic(progress));
-      scale = lerp(0.985, 1, easeOutCubic(progress));
-      blur = lerp(3, 0, easeOutCubic(progress));
+      opacity = lerp(0.7, 1, easeOutCubic(progress));
+      translateY = lerp(12, 0, easeOutCubic(progress));
+      scale = lerp(0.995, 1, easeOutCubic(progress));
+      blur = lerp(0.8, 0, easeOutCubic(progress));
     }
 
     card.style.opacity = opacity.toFixed(3);
