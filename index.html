@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Підтримка поруч</title>
+    <meta
+      name="description"
+      content="Платформа підтримки людей, про яких ми піклуємось, і спонсорства тих, хто віддає свій час на служіння іншим."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="site-header glass-panel">
+        <div class="brand">
+          <div class="brand-mark">❤</div>
+          <div>
+            <div class="brand-title">Підтримка поруч</div>
+            <div class="brand-subtitle">Турбота. Служіння. Підтримка.</div>
+          </div>
+        </div>
+
+        <nav class="site-nav" aria-label="Головна навігація">
+          <a href="#home">Головна</a>
+          <a href="#profiles">Анкети</a>
+          <a href="#about">Про проєкт</a>
+          <a href="#support">Як допомогти</a>
+        </nav>
+
+        <div class="header-actions">
+          <button id="randomProfileBtn" class="button button-primary button-glow" type="button">
+            Випадкова анкета
+          </button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="left-column">
+          <section id="home" class="hero glass-panel">
+            <div class="hero-copy">
+              <span class="eyebrow">Підтримка кожного</span>
+              <h1>Підтримка, що змінює життя</h1>
+              <p>
+                Тут зібрані історії людей, про яких ми піклуємось, і тих, хто
+                служить іншим. Кожна анкета — це реальна людина, реальна потреба
+                і можливість долучитися до добра.
+              </p>
+
+              <div class="hero-actions">
+                <a class="button button-primary" href="#profiles">Переглянути анкети</a>
+                <button id="heroRandomBtn" class="button button-secondary" type="button">
+                  Випадкова анкета
+                </button>
+              </div>
+
+              <div class="hero-meta">
+                <div class="avatars" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                </div>
+                <p>
+                  <strong id="profilesCounter">0</strong>
+                  активних анкет доступно зараз
+                </p>
+              </div>
+            </div>
+
+            <div class="hero-visual" aria-hidden="true">
+              <div class="hero-orb orb-1"></div>
+              <div class="hero-orb orb-2"></div>
+              <div class="hero-card floating-card">
+                <div class="floating-icon">❤</div>
+                <div>
+                  <strong>Разом ми сильніші</strong>
+                  <p>Одна дія підтримки інколи важить більше за довгі слова.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="profiles" class="profiles-section glass-panel">
+            <div class="section-head">
+              <div>
+                <span class="section-kicker">Останні анкети</span>
+                <h2>Люди, яким зараз потрібна підтримка</h2>
+              </div>
+              <div class="section-tools">
+                <label class="search-wrap" for="searchInput">
+                  <span>🔎</span>
+                  <input
+                    id="searchInput"
+                    type="search"
+                    placeholder="Пошук за ім’ям, церквою, місцем служіння"
+                    autocomplete="off"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div id="profilesGrid" class="profiles-grid" aria-live="polite"></div>
+            <div id="profilesEmpty" class="empty-state hidden">
+              Нічого не знайдено. Спробуйте змінити запит.
+            </div>
+          </section>
+
+          <section id="support" class="cta-banner glass-panel">
+            <div class="cta-icon">✦</div>
+            <div>
+              <h3>Неважливо, наскільки велика ваша допомога. Важливо, що ви є.</h3>
+              <p>
+                Станьте частиною підтримки тих, хто віддає свій час, сили і серце іншим.
+              </p>
+            </div>
+            <a
+              class="button button-primary"
+              href="https://give.tithe.ly/?formId=3966c1ff-6865-11ee-90fc-1260ab546d11&locationId=3bff1725-a576-4eec-bcef-43283ffbbbfc&fundId=83ca1801-4d23-4e39-bc14-f4d2be128809&amount=2500"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Підтримати
+            </a>
+          </section>
+        </section>
+
+        <aside class="right-column">
+          <section id="detailsPanel" class="details-panel glass-panel">
+            <div id="detailsLoading" class="details-loading">
+              Завантаження анкети…
+            </div>
+            <div id="detailsContent" class="details-content hidden"></div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <template id="profileCardTemplate">
+      <article class="profile-card">
+        <button class="profile-card-hitbox" type="button"></button>
+        <div class="profile-card-image-wrap">
+          <img class="profile-card-image" alt="" loading="lazy" />
+          <span class="profile-chip"></span>
+        </div>
+        <div class="profile-card-body">
+          <div class="profile-card-top">
+            <h3 class="profile-card-name"></h3>
+            <span class="profile-card-age"></span>
+          </div>
+          <div class="profile-card-meta"></div>
+          <p class="profile-card-note"></p>
+        </div>
+      </article>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
