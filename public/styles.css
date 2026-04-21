@@ -531,34 +531,30 @@ input {
   transition:
     transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.45s ease,
     box-shadow 0.18s ease,
-    border-color 0.18s ease,
-    filter 0.45s ease;
+    border-color 0.18s ease;
   will-change: transform, opacity, filter;
 }
 
-/* картка в нормальному стані */
+.profile-card.is-hidden-before {
+  opacity: 0;
+  transform: translateY(48px) scale(0.98);
+  filter: blur(4px);
+}
+
 .profile-card.is-visible {
   opacity: 1;
   transform: translateY(0) scale(1);
   filter: blur(0);
 }
 
-/* картка біля краю і починає "зникати" */
 .profile-card.is-fading-out {
-  opacity: 0.18;
-  transform: translateY(-8px) scale(0.965);
+  opacity: 0.2;
+  transform: translateY(-6px) scale(0.97);
   filter: blur(1.5px);
 }
 
-/* картка ще не увійшла знизу */
-.profile-card.is-hidden-before {
-  opacity: 0;
-  transform: translateY(40px) scale(0.98);
-  filter: blur(4px);
-}
-
-/* hover лишаємо, але не ламаємо ефект */
 .profile-card.is-visible:hover {
   transform: translateY(-4px) scale(1.01);
   box-shadow: 0 20px 40px rgba(21, 40, 98, 0.16);
@@ -575,14 +571,14 @@ input {
   position: sticky;
   top: 0;
   display: block;
-  height: 54px;
-  margin-bottom: -54px;
+  height: 64px;
+  margin-bottom: -64px;
   pointer-events: none;
-  z-index: 5;
+  z-index: 6;
   background: linear-gradient(
     to bottom,
-    rgba(237, 242, 251, 0.92) 0%,
-    rgba(237, 242, 251, 0.72) 35%,
+    rgba(237, 242, 251, 0.96) 0%,
+    rgba(237, 242, 251, 0.78) 40%,
     rgba(237, 242, 251, 0) 100%
   );
 }
