@@ -1,12 +1,14 @@
-const NOTION_VERSION = "2025-09-03";
+const NOTION_VERSION = "2022-06-28";
 
 const NOTION_FIELD_MAP = {
-  NAME: "Name:",
+  DISPLAY_NAME: "Name:",
+  TITLE_NAME: "Name",
   AGE: "Age:",
   MARITAL_STATUS: "Marital Status:",
   PLACE_OF_MINISTRY: "Place of Ministry:",
   CHURCH: "Church:",
-  POSITION: "Position:",
+  ROLE: "Position:",
+  PUBLISH_STATUS: "Позиція",
   NOTE: "Note:",
   TEXT: "Text:",
   PHOTO: "Фото",
@@ -38,31 +40,35 @@ async function handleProfiles(env) {
   const NOTION_TOKEN = env.NOTION_TOKEN;
   const NOTION_DATA_SOURCE_ID = env.NOTION_DATA_SOURCE_ID;
 
+  if (!NOTION_TOKEN) {
+    return json({ ok: false, error: "Не задано секрет NOTION_TOKEN у Cloudflare Worker." }, 500);
+  }
+
+  if (!NOTION_DATA_SOURCE_ID) {
+    return json({ ok: false, error: "Не задано секрет NOTION_DATA_SOURCE_ID у Cloudflare Worker." }, 500);
+  }
+
   const pages = await queryAllPages({
     token: NOTION_TOKEN,
-    dataSourceId: NOTION_DATA_SOURCE_ID,
+    databaseId: NOTION_DATA_SOURCE_ID,
   });
 
-  return json({
-    ok: true,
-    totalFromNotion: pages.length,
-    sample: pages.slice(0, 3).map((page) => ({
-      id: page.id,
-      created_time: page.created_time,
-      propertyKeys: Object.keys(page.properties || {}),
-      properties: page.properties || {},
-    })),
-  });
+  const items = pages
+    .map(normalizeNotionPage)
+    .filter((item) => item.isReady)
+    .sort((a, b) => new Date(b.createdTime).getTime() - new Date(a.createdTime).getTime());
+
+  return json({ ok: true, items });
 }
 
-async function queryAllPages({ token, dataSourceId }) {
+async function queryAllPages({ token, databaseId }) {
   const results = [];
   let hasMore = true;
   let nextCursor = undefined;
 
   while (hasMore) {
     const response = await fetch(
-      `https://api.notion.com/v1/data_sources/${dataSourceId}/query`,
+      `https://api.notion.com/v1/databases/${databaseId}/query`,
       {
         method: "POST",
         headers: {
@@ -92,11 +98,9 @@ async function queryAllPages({ token, dataSourceId }) {
       );
     }
 
-    const batch = Array.isArray(data?.results) ? data.results : [];
-    results.push(...batch);
-
-    hasMore = Boolean(data?.has_more);
-    nextCursor = data?.next_cursor || undefined;
+    results.push(...(data.results || []));
+    hasMore = Boolean(data.has_more);
+    nextCursor = data.next_cursor || undefined;
   }
 
   return results;
@@ -104,23 +108,35 @@ async function queryAllPages({ token, dataSourceId }) {
 
 function normalizeNotionPage(page) {
   const properties = page?.properties || {};
-  const position = getPropertyText(properties[NOTION_FIELD_MAP.POSITION]).trim();
+
+  const publishStatus = getPropertyText(
+    properties[NOTION_FIELD_MAP.PUBLISH_STATUS]
+  ).trim();
+
+  const displayName =
+    getPropertyText(properties[NOTION_FIELD_MAP.DISPLAY_NAME]) ||
+    getPropertyText(properties[NOTION_FIELD_MAP.TITLE_NAME]) ||
+    "Без імені";
 
   return {
     id: page?.id || crypto.randomUUID(),
-    name: getPropertyText(properties[NOTION_FIELD_MAP.NAME]) || "Без імені",
+    name: displayName,
     age: getPropertyText(properties[NOTION_FIELD_MAP.AGE]) || "—",
     maritalStatus:
       getPropertyText(properties[NOTION_FIELD_MAP.MARITAL_STATUS]) || "—",
     placeOfMinistry:
       getPropertyText(properties[NOTION_FIELD_MAP.PLACE_OF_MINISTRY]) || "—",
     church: getPropertyText(properties[NOTION_FIELD_MAP.CHURCH]) || "—",
-    position,
+    role: getPropertyText(properties[NOTION_FIELD_MAP.ROLE]) || "",
+    publishStatus,
     note: getPropertyText(properties[NOTION_FIELD_MAP.NOTE]) || "",
     text: getPropertyText(properties[NOTION_FIELD_MAP.TEXT]) || "",
     photo: getPropertyFile(properties[NOTION_FIELD_MAP.PHOTO]) || "",
-    createdTime: page?.created_time || new Date(0).toISOString(),
-    isReady: position.toLowerCase() === "готово",
+    createdTime:
+      page?.properties?.Created?.created_time ||
+      page?.created_time ||
+      new Date(0).toISOString(),
+    isReady: publishStatus.toLowerCase() === "готово",
   };
 }
 
@@ -130,52 +146,34 @@ function getPropertyText(property) {
   switch (property.type) {
     case "title":
       return joinRichText(property.title);
-
     case "rich_text":
       return joinRichText(property.rich_text);
-
     case "number":
       return property.number != null ? String(property.number) : "";
-
     case "select":
       return property.select?.name || "";
-
     case "status":
       return property.status?.name || "";
-
     case "multi_select":
       return Array.isArray(property.multi_select)
         ? property.multi_select.map((item) => item?.name).filter(Boolean).join(", ")
         : "";
-
     case "people":
       return Array.isArray(property.people)
         ? property.people.map((item) => item?.name).filter(Boolean).join(", ")
         : "";
-
     case "email":
       return property.email || "";
-
     case "phone_number":
       return property.phone_number || "";
-
     case "url":
       return property.url || "";
-
     case "date":
       return property.date?.start || "";
-
     case "checkbox":
       return property.checkbox ? "Так" : "Ні";
-
     case "formula":
       return getFormulaText(property.formula);
-
-    case "relation":
-      return Array.isArray(property.relation)
-        ? property.relation.map((item) => item?.id).filter(Boolean).join(", ")
-        : "";
-
     default:
       return "";
   }
