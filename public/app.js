@@ -4,6 +4,9 @@ const SUPPORT_URL =
 
 const API_BASE_URL = window.APP_CONFIG?.apiBaseUrl || "/api/profiles";
 
+let cardVisibilityObserver = null;
+let cardFadeObserver = null;
+
 const state = {
   profiles: [],
   filteredProfiles: [],
@@ -230,6 +233,7 @@ function renderGrid() {
   items.forEach((profile) => {
     const card = document.createElement("article");
     card.className = `profile-card${profile.id === state.selectedId && state.modalOpen ? " is-active" : ""}`;
+    card.classList.add("is-hidden-before");
     card.dataset.profileId = profile.id;
     card.tabIndex = 0;
     card.setAttribute("role", "button");
@@ -272,6 +276,7 @@ function renderGrid() {
   });
 
   elements.profilesGrid.appendChild(fragment);
+  setupCardScrollAnimations();
 }
 
 function renderDetail() {
@@ -369,4 +374,66 @@ function createFallbackImage(name) {
   `.trim();
 
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function setupCardScrollAnimations() {
+  if (cardVisibilityObserver) {
+    cardVisibilityObserver.disconnect();
+  }
+
+  if (cardFadeObserver) {
+    cardFadeObserver.disconnect();
+  }
+
+  const cards = elements.profilesGrid.querySelectorAll(".profile-card");
+  if (!cards.length) return;
+
+  cardVisibilityObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const card = entry.target;
+
+        if (entry.isIntersecting) {
+          card.classList.add("is-visible");
+          card.classList.remove("is-hidden-before");
+        } else {
+          if (entry.boundingClientRect.top > window.innerHeight * 0.75) {
+            card.classList.remove("is-visible");
+            card.classList.add("is-hidden-before");
+          }
+        }
+      });
+    },
+    {
+      root: null,
+      threshold: 0.15,
+      rootMargin: "0px 0px -10% 0px",
+    }
+  );
+
+  cardFadeObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const card = entry.target;
+        const rect = entry.boundingClientRect;
+        const fadeTopZone = 110;
+
+        if (rect.top < fadeTopZone && rect.bottom > 0) {
+          card.classList.add("is-fading-out");
+        } else {
+          card.classList.remove("is-fading-out");
+        }
+      });
+    },
+    {
+      root: null,
+      threshold: [0, 0.1, 0.2, 0.4, 0.8, 1],
+    }
+  );
+
+  cards.forEach((card) => {
+    card.classList.add("is-hidden-before");
+    cardVisibilityObserver.observe(card);
+    cardFadeObserver.observe(card);
+  });
 }
