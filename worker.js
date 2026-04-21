@@ -50,7 +50,7 @@ async function handleProfiles(env) {
 
   const pages = await queryAllPages({
     token: NOTION_TOKEN,
-    databaseId: NOTION_DATA_SOURCE_ID,
+    dataSourceId: NOTION_DATA_SOURCE_ID,
   });
 
   const items = pages
@@ -61,14 +61,14 @@ async function handleProfiles(env) {
   return json({ ok: true, items });
 }
 
-async function queryAllPages({ token, databaseId }) {
+async function queryAllPages({ token, dataSourceId }) {
   const results = [];
   let hasMore = true;
   let nextCursor = undefined;
 
   while (hasMore) {
     const response = await fetch(
-      `https://api.notion.com/v1/data_sources/${databaseId}/query`,
+      `https://api.notion.com/v1/data_sources/${dataSourceId}/query`,
       {
         method: "POST",
         headers: {
