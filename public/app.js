@@ -55,22 +55,11 @@ async function init() {
   render();
 }
 
-function clamp(val, min, max) {
-  return Math.max(min, Math.min(max, val));
-}
-
-function lerp(a, b, t) {
-  return a + (b - a) * t;
-}
-
-function easeOutQuad(t) {
-  return 1 - (1 - t) * (1 - t);
-}
-
 function bindEvents() {
   elements.searchInput.addEventListener("input", handleSearchInput);
   elements.randomProfileButton.addEventListener("click", selectRandomProfile);
   elements.randomProfileButtonDetail.addEventListener("click", selectRandomProfile);
+
   elements.scrollToProfilesButton.addEventListener("click", () => {
     document.getElementById("profiles")?.scrollIntoView({ behavior: "smooth" });
   });
@@ -242,7 +231,6 @@ function renderGrid() {
   items.forEach((profile) => {
     const card = document.createElement("article");
     card.className = `profile-card${profile.id === state.selectedId && state.modalOpen ? " is-active" : ""}`;
-    card.classList.add("is-hidden-before");
     card.dataset.profileId = profile.id;
     card.tabIndex = 0;
     card.setAttribute("role", "button");
@@ -285,7 +273,6 @@ function renderGrid() {
   });
 
   elements.profilesGrid.appendChild(fragment);
-  setupCardScrollAnimations();
 }
 
 function renderDetail() {
@@ -383,92 +370,4 @@ function createFallbackImage(name) {
   `.trim();
 
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-}
-
-let cardsScrollTicking = false;
-
-function setupCardScrollAnimations() {
-  updateCardsOnScroll();
-
-  window.removeEventListener("scroll", requestCardsScrollUpdate);
-  window.removeEventListener("resize", requestCardsScrollUpdate);
-
-  window.addEventListener("scroll", requestCardsScrollUpdate, { passive: true });
-  window.addEventListener("resize", requestCardsScrollUpdate);
-}
-
-function requestCardsScrollUpdate() {
-  if (cardsScrollTicking) return;
-
-  cardsScrollTicking = true;
-  requestAnimationFrame(() => {
-    updateCardsOnScroll();
-    cardsScrollTicking = false;
-  });
-}
-
-function updateCardsOnScroll() {
-  const cards = elements.profilesGrid.querySelectorAll(".profile-card");
-  if (!cards.length) return;
-
-  const viewportHeight = window.innerHeight;
-
-  // Верх: ефект починається майже біля самого краю
-  const fadeStart = 0;
-  const fadeDistance = 70;
-
-  // Низ: плавна поява трохи перед входом
-  const revealStart = viewportHeight - 80;
-  const revealDistance = 140;
-
-  cards.forEach((card) => {
-    const rect = card.getBoundingClientRect();
-
-    let opacity = 1;
-    let translateY = 0;
-    let scale = 1;
-    let blur = 0;
-
-    // Верхнє м’яке згасання
-    if (rect.top < fadeStart) {
-      const progress = clamp(Math.abs(rect.top - fadeStart) / fadeDistance, 0, 1);
-
-      opacity = lerp(1, 0.72, easeOutQuad(progress));
-      translateY = lerp(0, -2, easeOutQuad(progress));
-      scale = lerp(1, 0.996, easeOutQuad(progress));
-      blur = lerp(0, 0.25, easeOutQuad(progress));
-    }
-
-    // Нижня м’яка поява
-    else if (rect.top > revealStart) {
-      const progress = clamp((viewportHeight - rect.top) / revealDistance, 0, 1);
-
-      opacity = lerp(0.82, 1, easeOutQuad(progress));
-      translateY = lerp(8, 0, easeOutQuad(progress));
-      scale = lerp(0.998, 1, easeOutQuad(progress));
-      blur = lerp(0.35, 0, easeOutQuad(progress));
-    }
-
-    card.style.opacity = opacity.toFixed(3);
-    card.style.transform = `translateY(${translateY.toFixed(2)}px) scale(${scale.toFixed(4)})`;
-    card.style.filter = `blur(${blur.toFixed(2)}px)`;
-  });
-}
-
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
-}
-
-function lerp(start, end, t) {
-  return start + (end - start) * t;
-}
-
-function easeOutCubic(t) {
-  return 1 - Math.pow(1 - t, 3);
-}
-
-function easeInOutCubic(t) {
-  return t < 0.5
-    ? 4 * t * t * t
-    : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
