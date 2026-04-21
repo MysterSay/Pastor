@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Підтримка поруч</title>
+    <title>Support Nearby</title>
     <meta
       name="description"
-      content="Сайт підтримки тих, про кого ми піклуємось, і спонсорства тих, хто віддає свій час на підтримку іншим."
+      content="A website to support those we care for and to sponsor those who give their time to support others."
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
@@ -34,41 +34,41 @@
           <div class="brand">
             <div class="brand-mark">❤</div>
             <div class="brand-text">
-              <div class="brand-title">Підтримка поруч</div>
-              <div class="brand-subtitle">Турбота. Служіння. Підтримка.</div>
+              <div class="brand-title">Support Nearby</div>
+              <div class="brand-subtitle">Care. Ministry. Support.</div>
             </div>
           </div>
 
           <nav class="top-nav">
-            <a href="#hero">Головна</a>
-            <a href="#profiles">Анкети</a>
-            <a href="#about">Про проєкт</a>
-            <a href="#about">Як допомогти</a>
+            <a href="#hero">Home</a>
+            <a href="#profiles">Profiles</a>
+            <a href="#about">About</a>
+            <a href="#about">How to Help</a>
           </nav>
         </header>
 
         <div class="content-wrap">
           <section id="hero" class="hero">
             <div class="hero-content">
-              <span class="hero-badge">Турбота про людей</span>
+              <span class="hero-badge">Caring for People</span>
 
               <h1>
-                Підтримка,<br />
-                що змінює <span>життя</span>
+                Support<br />
+                that changes <span>lives</span>
               </h1>
 
               <p>
-                Тут зібрані історії людей, про яких ми піклуємось, і тих, хто
-                служить іншим. Кожна анкета — це реальна людина, реальна потреба
-                і можливість долучитися до добра.
+                Here you will find the stories of people we care for and those
+                who serve others. Every profile is a real person, a real need,
+                and a real opportunity to take part in doing good.
               </p>
 
               <div class="hero-actions">
                 <button id="randomProfileButton" class="btn btn-primary" type="button">
-                  Випадкова анкета
+                  Random Profile
                 </button>
                 <button id="scrollToProfilesButton" class="btn btn-secondary" type="button">
-                  Переглянути анкети
+                  View Profiles
                 </button>
               </div>
 
@@ -79,7 +79,7 @@
                   <span></span>
                 </div>
                 <div class="hero-meta-text">
-                  Люди, яким можна допомогти вже сьогодні
+                  People who can be supported today
                 </div>
               </div>
             </div>
@@ -90,11 +90,11 @@
               <div class="hero-card">
                 <div class="hero-card-icon">✦</div>
                 <div class="hero-card-text">
-                  Разом<br />
-                  ми сильніші
+                  Together<br />
+                  we are stronger
                 </div>
                 <div class="hero-card-subtext">
-                  Одна дія підтримки інколи важить більше за добрі слова.
+                  One act of support can matter more than kind words alone.
                 </div>
               </div>
             </div>
@@ -103,8 +103,8 @@
           <section id="profiles" class="profiles-section">
             <div class="section-head">
               <div>
-                <h2>Анкети</h2>
-                <p>Оновлюються автоматично з бази Notion</p>
+                <h2>Profiles</h2>
+                <p>Updated automatically from Notion</p>
               </div>
 
               <div class="filters">
@@ -112,7 +112,7 @@
                   <input
                     id="searchInput"
                     type="text"
-                    placeholder="Пошук по імені, церкві, місцю служіння..."
+                    placeholder="Search by name, church, place of ministry..."
                     autocomplete="off"
                   />
                 </label>
@@ -120,7 +120,7 @@
             </div>
 
             <div id="statusMessage" class="status-message is-loading">
-              Завантаження анкет...
+              Loading profiles...
             </div>
 
             <div id="profilesGrid" class="profiles-grid" aria-live="polite"></div>
@@ -131,11 +131,11 @@
               <div class="about-icon">🫶</div>
 
               <div class="about-copy">
-                <h3>Неважливо, наскільки велика ваша допомога</h3>
+                <h3>No matter how large your support is</h3>
                 <p>
-                  Важливо, що ви є. Платформа створена для підтримки тих, про кого
-                  ми піклуємось, і для спонсорства тих, хто віддає свій час
-                  служінню іншим.
+                  What matters is that you are here. This platform was created
+                  to support those we care for and to sponsor those who give
+                  their time to serve others.
                 </p>
               </div>
 
@@ -146,7 +146,7 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Підтримати
+                Support
               </a>
             </div>
           </section>
@@ -167,7 +167,7 @@
 
           <div class="detail-header-actions">
             <button id="randomProfileButtonDetail" class="btn btn-primary btn-small" type="button">
-              Випадкова анкета
+              Random Profile
             </button>
           </div>
         </div>
@@ -190,7 +190,7 @@
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Підтримати
+                  Support
                 </a>
               </div>
             </div>
@@ -198,28 +198,28 @@
 
           <div class="detail-meta-grid">
             <div class="meta-card">
-              <span class="meta-label">Вік</span>
+              <span class="meta-label">Age</span>
               <strong id="detailAge">—</strong>
             </div>
 
             <div class="meta-card">
-              <span class="meta-label">Сімейний стан</span>
+              <span class="meta-label">Marital Status</span>
               <strong id="detailMaritalStatus">—</strong>
             </div>
 
             <div class="meta-card">
-              <span class="meta-label">Місце служіння</span>
+              <span class="meta-label">Place of Ministry</span>
               <strong id="detailPlaceOfMinistry">—</strong>
             </div>
 
             <div class="meta-card">
-              <span class="meta-label">Церква</span>
+              <span class="meta-label">Church</span>
               <strong id="detailChurch">—</strong>
             </div>
           </div>
 
           <section class="detail-section">
-            <h3>Історія</h3>
+            <h3>Story</h3>
             <div id="detailText" class="detail-text"></div>
           </section>
         </div>
