@@ -1,1 +1,8 @@
 
+name = "pastorsupport"
+main = "worker.js"
+compatibility_date = "2026-04-21"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
