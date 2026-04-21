@@ -38,41 +38,20 @@ async function handleProfiles(env) {
   const NOTION_TOKEN = env.NOTION_TOKEN;
   const NOTION_DATA_SOURCE_ID = env.NOTION_DATA_SOURCE_ID;
 
-  if (!NOTION_TOKEN) {
-    return json(
-      {
-        ok: false,
-        error: "Не задано секрет NOTION_TOKEN у Cloudflare Worker.",
-      },
-      500
-    );
-  }
-
-  if (!NOTION_DATA_SOURCE_ID) {
-    return json(
-      {
-        ok: false,
-        error: "Не задано секрет NOTION_DATA_SOURCE_ID у Cloudflare Worker.",
-      },
-      500
-    );
-  }
-
   const pages = await queryAllPages({
     token: NOTION_TOKEN,
     dataSourceId: NOTION_DATA_SOURCE_ID,
   });
 
-  const items = pages
-    .map(normalizeNotionPage)
-    .filter((item) => item.isReady)
-    .sort((a, b) => {
-      return new Date(b.createdTime).getTime() - new Date(a.createdTime).getTime();
-    });
-
   return json({
     ok: true,
-    items,
+    totalFromNotion: pages.length,
+    sample: pages.slice(0, 3).map((page) => ({
+      id: page.id,
+      created_time: page.created_time,
+      propertyKeys: Object.keys(page.properties || {}),
+      properties: page.properties || {},
+    })),
   });
 }
 
