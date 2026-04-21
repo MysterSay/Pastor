@@ -83,7 +83,7 @@ async function queryAllPages({ token, dataSourceId }) {
 
   while (hasMore) {
     const response = await fetch(
-      `https://api.notion.com/v1/data-sources/${dataSourceId}/query`,
+      `https://api.notion.com/v1/data_sources/${dataSourceId}/query`,
       {
         method: "POST",
         headers: {
