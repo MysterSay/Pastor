@@ -55,6 +55,18 @@ async function init() {
   render();
 }
 
+function clamp(val, min, max) {
+  return Math.max(min, Math.min(max, val));
+}
+
+function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+function easeOutQuad(t) {
+  return 1 - (1 - t) * (1 - t);
+}
+
 function bindEvents() {
   elements.searchInput.addEventListener("input", handleSearchInput);
   elements.randomProfileButton.addEventListener("click", selectRandomProfile);
