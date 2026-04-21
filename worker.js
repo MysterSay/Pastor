@@ -1,4 +1,4 @@
-const NOTION_VERSION = "2022-06-28";
+const NOTION_VERSION = "2025-09-03";
 
 const NOTION_FIELD_MAP = {
   DISPLAY_NAME: "Name:",
@@ -85,7 +85,7 @@ async function queryAllPages({ token, dataSourceId }) {
 
     const responseText = await response.text();
 
-    let data = null;
+    let data = {};
     try {
       data = responseText ? JSON.parse(responseText) : {};
     } catch {
@@ -136,7 +136,7 @@ function normalizeNotionPage(page) {
       page?.properties?.Created?.created_time ||
       page?.created_time ||
       new Date(0).toISOString(),
-    isReady: publishStatus.toLowerCase() === "Готово",
+    isReady: publishStatus.toLowerCase() === "готово",
   };
 }
 
