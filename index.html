@@ -2,161 +2,224 @@
 <html lang="uk">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
     <title>Підтримка поруч</title>
     <meta
       name="description"
-      content="Платформа підтримки людей, про яких ми піклуємось, і спонсорства тих, хто віддає свій час на служіння іншим."
+      content="Сайт підтримки тих, про кого ми піклуємось, і спонсорства тих, хто віддає свій час на підтримку іншим."
     />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <script>
+      window.APP_CONFIG = {
+        apiBaseUrl: "/api/profiles",
+        supportUrl:
+          "https://give.tithe.ly/?formId=3966c1ff-6865-11ee-90fc-1260ab546d11&locationId=3bff1725-a576-4eec-bcef-43283ffbbbfc&fundId=83ca1801-4d23-4e39-bc14-f4d2be128809&amount=2500",
+      };
+    </script>
+
     <div class="page-shell">
-      <header class="site-header glass-panel">
-        <div class="brand">
-          <div class="brand-mark">❤</div>
-          <div>
-            <div class="brand-title">Підтримка поруч</div>
-            <div class="brand-subtitle">Турбота. Служіння. Підтримка.</div>
+      <aside class="left-panel">
+        <header class="site-header">
+          <div class="brand">
+            <div class="brand-mark">❤</div>
+            <div class="brand-text">
+              <div class="brand-title">Підтримка поруч</div>
+              <div class="brand-subtitle">Турбота, молитва, підтримка</div>
+            </div>
           </div>
-        </div>
 
-        <nav class="site-nav" aria-label="Головна навігація">
-          <a href="#home">Головна</a>
-          <a href="#profiles">Анкети</a>
-          <a href="#about">Про проєкт</a>
-          <a href="#support">Як допомогти</a>
-        </nav>
+          <nav class="top-nav">
+            <a href="#hero">Головна</a>
+            <a href="#profiles">Анкети</a>
+            <a href="#about">Про проєкт</a>
+          </nav>
+        </header>
 
-        <div class="header-actions">
-          <button id="randomProfileBtn" class="button button-primary button-glow" type="button">
-            Випадкова анкета
-          </button>
-        </div>
-      </header>
-
-      <main class="layout">
-        <section class="left-column">
-          <section id="home" class="hero glass-panel">
-            <div class="hero-copy">
-              <span class="eyebrow">Підтримка кожного</span>
-              <h1>Підтримка, що змінює життя</h1>
+        <main class="left-content">
+          <section id="hero" class="hero">
+            <div class="hero-content">
+              <span class="hero-badge">Турбота про людей</span>
+              <h1>
+                Підтримка,<br />
+                що змінює <span>життя</span>
+              </h1>
               <p>
-                Тут зібрані історії людей, про яких ми піклуємось, і тих, хто
-                служить іншим. Кожна анкета — це реальна людина, реальна потреба
-                і можливість долучитися до добра.
+                Тут зібрані історії людей, які потребують підтримки.
+                Ви можете обрати анкету самостійно або довірити вибір
+                випадку — і підтримати того, хто зараз особливо цього потребує.
               </p>
 
               <div class="hero-actions">
-                <a class="button button-primary" href="#profiles">Переглянути анкети</a>
-                <button id="heroRandomBtn" class="button button-secondary" type="button">
+                <button id="randomProfileButton" class="btn btn-primary" type="button">
                   Випадкова анкета
+                </button>
+                <button id="scrollToProfilesButton" class="btn btn-secondary" type="button">
+                  Переглянути анкети
                 </button>
               </div>
 
               <div class="hero-meta">
-                <div class="avatars" aria-hidden="true">
-                  <span></span><span></span><span></span>
+                <div class="hero-avatars">
+                  <span></span>
+                  <span></span>
+                  <span></span>
                 </div>
-                <p>
-                  <strong id="profilesCounter">0</strong>
-                  активних анкет доступно зараз
-                </p>
+                <div class="hero-meta-text">
+                  Люди, яким можна допомогти вже сьогодні
+                </div>
               </div>
             </div>
 
-            <div class="hero-visual" aria-hidden="true">
-              <div class="hero-orb orb-1"></div>
-              <div class="hero-orb orb-2"></div>
-              <div class="hero-card floating-card">
-                <div class="floating-icon">❤</div>
-                <div>
-                  <strong>Разом ми сильніші</strong>
-                  <p>Одна дія підтримки інколи важить більше за довгі слова.</p>
+            <div class="hero-visual">
+              <div class="hero-glow"></div>
+              <div class="hero-card">
+                <div class="hero-card-icon">✦</div>
+                <div class="hero-card-text">
+                  Разом<br />
+                  ми сильніші
                 </div>
               </div>
             </div>
           </section>
 
-          <section id="profiles" class="profiles-section glass-panel">
+          <section id="profiles" class="profiles-section">
             <div class="section-head">
               <div>
-                <span class="section-kicker">Останні анкети</span>
-                <h2>Люди, яким зараз потрібна підтримка</h2>
+                <h2>Анкети</h2>
+                <p>Оновлюються автоматично з бази Notion</p>
               </div>
-              <div class="section-tools">
-                <label class="search-wrap" for="searchInput">
-                  <span>🔎</span>
+
+              <div class="filters">
+                <label class="search-box">
                   <input
                     id="searchInput"
-                    type="search"
-                    placeholder="Пошук за ім’ям, церквою, місцем служіння"
+                    type="text"
+                    placeholder="Пошук по імені, церкві, місцю служіння..."
                     autocomplete="off"
                   />
                 </label>
               </div>
             </div>
 
+            <div id="statusMessage" class="status-message is-loading">
+              Завантаження анкет...
+            </div>
+
             <div id="profilesGrid" class="profiles-grid" aria-live="polite"></div>
-            <div id="profilesEmpty" class="empty-state hidden">
-              Нічого не знайдено. Спробуйте змінити запит.
-            </div>
           </section>
 
-          <section id="support" class="cta-banner glass-panel">
-            <div class="cta-icon">✦</div>
-            <div>
-              <h3>Неважливо, наскільки велика ваша допомога. Важливо, що ви є.</h3>
-              <p>
-                Станьте частиною підтримки тих, хто віддає свій час, сили і серце іншим.
-              </p>
+          <section id="about" class="about-section">
+            <div class="about-card">
+              <div class="about-icon">🫶</div>
+              <div>
+                <h3>Неважливо, наскільки велика ваша допомога</h3>
+                <p>
+                  Важливо, що ви є. Платформа створена для підтримки тих,
+                  про кого ми піклуємось, і для спонсорства тих, хто
+                  віддає свій час служінню іншим.
+                </p>
+              </div>
+              <a
+                class="btn btn-primary btn-inline"
+                id="globalSupportButton"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Підтримати
+              </a>
             </div>
-            <a
-              class="button button-primary"
-              href="https://give.tithe.ly/?formId=3966c1ff-6865-11ee-90fc-1260ab546d11&locationId=3bff1725-a576-4eec-bcef-43283ffbbbfc&fundId=83ca1801-4d23-4e39-bc14-f4d2be128809&amount=2500"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Підтримати
-            </a>
           </section>
-        </section>
+        </main>
+      </aside>
 
-        <aside class="right-column">
-          <section id="detailsPanel" class="details-panel glass-panel">
-            <div id="detailsLoading" class="details-loading">
-              Завантаження анкети…
+      <section class="right-panel">
+        <div id="detailEmpty" class="detail-empty">
+          <div class="detail-empty-inner">
+            <div class="detail-empty-icon">❤</div>
+            <h2>Оберіть анкету</h2>
+            <p>
+              Виберіть людину зі списку ліворуч або скористайтесь
+              кнопкою “Випадкова анкета”.
+            </p>
+          </div>
+        </div>
+
+        <article id="detailView" class="detail-view hidden">
+          <div class="detail-header">
+            <button id="mobileBackButton" class="icon-button mobile-only" type="button">
+              ← Назад
+            </button>
+
+            <div class="detail-header-actions">
+              <button id="randomProfileButtonDetail" class="btn btn-primary btn-small" type="button">
+                Випадкова анкета
+              </button>
             </div>
-            <div id="detailsContent" class="details-content hidden"></div>
-          </section>
-        </aside>
-      </main>
+          </div>
+
+          <div class="detail-top">
+            <div class="detail-photo-wrap">
+              <img
+                id="detailPhoto"
+                class="detail-photo"
+                src=""
+                alt=""
+              />
+            </div>
+
+            <div class="detail-main">
+              <h2 id="detailName">—</h2>
+              <div id="detailNote" class="detail-note hidden"></div>
+
+              <div class="detail-cta-wrap">
+                <a
+                  id="detailSupportButton"
+                  class="btn btn-primary"
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Підтримати
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="detail-meta-grid">
+            <div class="meta-card">
+              <span class="meta-label">Вік</span>
+              <strong id="detailAge">—</strong>
+            </div>
+            <div class="meta-card">
+              <span class="meta-label">Сімейний стан</span>
+              <strong id="detailMaritalStatus">—</strong>
+            </div>
+            <div class="meta-card">
+              <span class="meta-label">Місце служіння</span>
+              <strong id="detailPlaceOfMinistry">—</strong>
+            </div>
+            <div class="meta-card">
+              <span class="meta-label">Церква</span>
+              <strong id="detailChurch">—</strong>
+            </div>
+          </div>
+
+          <div class="detail-sections">
+            <section class="detail-section">
+              <h3>Історія</h3>
+              <div id="detailText" class="detail-text"></div>
+            </section>
+          </div>
+        </article>
+      </section>
     </div>
 
-    <template id="profileCardTemplate">
-      <article class="profile-card">
-        <button class="profile-card-hitbox" type="button"></button>
-        <div class="profile-card-image-wrap">
-          <img class="profile-card-image" alt="" loading="lazy" />
-          <span class="profile-chip"></span>
-        </div>
-        <div class="profile-card-body">
-          <div class="profile-card-top">
-            <h3 class="profile-card-name"></h3>
-            <span class="profile-card-age"></span>
-          </div>
-          <div class="profile-card-meta"></div>
-          <p class="profile-card-note"></p>
-        </div>
-      </article>
-    </template>
-
-    <script src="app.js"></script>
+    <script src="./app.js"></script>
   </body>
 </html>
