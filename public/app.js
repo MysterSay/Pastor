@@ -4,9 +4,6 @@ const SUPPORT_URL =
 
 const API_BASE_URL = window.APP_CONFIG?.apiBaseUrl || "/api/profiles";
 
-let cardVisibilityObserver = null;
-let cardFadeObserver = null;
-
 const state = {
   profiles: [],
   filteredProfiles: [],
@@ -376,64 +373,87 @@ function createFallbackImage(name) {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
+let cardsScrollTicking = false;
+
 function setupCardScrollAnimations() {
-  if (cardVisibilityObserver) {
-    cardVisibilityObserver.disconnect();
-  }
+  updateCardsOnScroll();
 
-  if (cardFadeObserver) {
-    cardFadeObserver.disconnect();
-  }
+  window.removeEventListener("scroll", requestCardsScrollUpdate);
+  window.removeEventListener("resize", requestCardsScrollUpdate);
 
+  window.addEventListener("scroll", requestCardsScrollUpdate, { passive: true });
+  window.addEventListener("resize", requestCardsScrollUpdate);
+}
+
+function requestCardsScrollUpdate() {
+  if (cardsScrollTicking) return;
+
+  cardsScrollTicking = true;
+  requestAnimationFrame(() => {
+    updateCardsOnScroll();
+    cardsScrollTicking = false;
+  });
+}
+
+function updateCardsOnScroll() {
   const cards = elements.profilesGrid.querySelectorAll(".profile-card");
   if (!cards.length) return;
 
-  cardVisibilityObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        const card = entry.target;
+  const viewportHeight = window.innerHeight;
 
-        if (entry.isIntersecting) {
-          card.classList.add("is-visible");
-          card.classList.remove("is-hidden-before");
-        } else {
-          if (entry.boundingClientRect.top > window.innerHeight * 0.75) {
-            card.classList.remove("is-visible");
-            card.classList.add("is-hidden-before");
-          }
-        }
-      });
-    },
-    {
-      root: null,
-      threshold: 0.15,
-      rootMargin: "0px 0px -10% 0px",
-    }
-  );
-
-  cardFadeObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        const card = entry.target;
-        const rect = entry.boundingClientRect;
-        const fadeTopZone = 110;
-
-        if (rect.top < fadeTopZone && rect.bottom > 0) {
-          card.classList.add("is-fading-out");
-        } else {
-          card.classList.remove("is-fading-out");
-        }
-      });
-    },
-    {
-      root: null,
-      threshold: [0, 0.1, 0.2, 0.4, 0.8, 1],
-    }
-  );
+  const fadeStart = 110;   // тут починається м’яке згасання біля верху
+  const fadeEnd = -220;    // тут плитка майже повністю зникла
+  const revealStart = viewportHeight - 40;   // коли входить знизу
+  const revealEnd = viewportHeight - 260;    // коли вже повністю проявлена
 
   cards.forEach((card) => {
-    card.classList.add("is-hidden-before");
-    cardVisibilityObserver.observe(card);
-    cardFadeObserver.observe(card);
+    const rect = card.getBoundingClientRect();
+
+    let opacity = 1;
+    let translateY = 0;
+    let scale = 1;
+    let blur = 0;
+
+    // ЗГАСАННЯ ВГОРІ
+    if (rect.top <= fadeStart) {
+      const progress = clamp((fadeStart - rect.top) / (fadeStart - fadeEnd), 0, 1);
+
+      opacity = lerp(1, 0.18, easeInOutCubic(progress));
+      translateY = lerp(0, -10, easeOutCubic(progress));
+      scale = lerp(1, 0.975, easeOutCubic(progress));
+      blur = lerp(0, 1.6, easeOutCubic(progress));
+    }
+
+    // ПОЯВА ЗНИЗУ
+    else if (rect.top >= revealEnd) {
+      const progress = clamp((revealStart - rect.top) / (revealStart - revealEnd), 0, 1);
+
+      opacity = lerp(0.22, 1, easeOutCubic(progress));
+      translateY = lerp(28, 0, easeOutCubic(progress));
+      scale = lerp(0.985, 1, easeOutCubic(progress));
+      blur = lerp(3, 0, easeOutCubic(progress));
+    }
+
+    card.style.opacity = opacity.toFixed(3);
+    card.style.transform = `translateY(${translateY.toFixed(2)}px) scale(${scale.toFixed(4)})`;
+    card.style.filter = `blur(${blur.toFixed(2)}px)`;
   });
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function lerp(start, end, t) {
+  return start + (end - start) * t;
+}
+
+function easeOutCubic(t) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+function easeInOutCubic(t) {
+  return t < 0.5
+    ? 4 * t * t * t
+    : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
