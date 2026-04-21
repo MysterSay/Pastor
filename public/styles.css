@@ -15,6 +15,86 @@
   --radius-sm: 14px;
 }
 
+/* ===== BACKGROUND ANIMATION ===== */
+
+.bg-animation {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.25;
+  animation: floatBlob 20s ease-in-out infinite;
+}
+
+.blob-1 {
+  width: 420px;
+  height: 420px;
+  top: 10%;
+  left: 5%;
+  background: rgba(83, 104, 255, 0.35);
+}
+
+.blob-2 {
+  width: 520px;
+  height: 520px;
+  top: 40%;
+  right: 8%;
+  background: rgba(70, 130, 255, 0.25);
+  animation-delay: 5s;
+}
+
+.blob-3 {
+  width: 400px;
+  height: 400px;
+  bottom: 10%;
+  left: 30%;
+  background: rgba(140, 170, 255, 0.2);
+  animation-delay: 10s;
+}
+
+@keyframes floatBlob {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(30px, -20px) scale(1.05);
+  }
+  50% {
+    transform: translate(-20px, 30px) scale(0.95);
+  }
+  75% {
+    transform: translate(20px, 10px) scale(1.03);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+/* accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .blob {
+    animation: none;
+  }
+}
+
+body {
+  position: relative;
+}
+
+.site-frame,
+.main-shell,
+.profile-modal,
+.modal-backdrop {
+  position: relative;
+  z-index: 1;
+}
 
 body {
   margin: 0;
