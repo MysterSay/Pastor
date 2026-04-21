@@ -15,6 +15,50 @@
   --radius-sm: 14px;
 }
 
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+}
+
+.site-frame {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 1240px) 1fr;
+  gap: 24px;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.main-shell {
+  width: 100%;
+  min-width: 0;
+  margin: 0 auto;
+}
+
+.side-spacer {
+  min-width: 0;
+}
+
+.content-wrap,
+.profiles-section,
+.section-head,
+.filters,
+.search-box,
+.profiles-grid {
+  min-width: 0;
+}
+
+.profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+  width: 100%;
+  max-width: 100%;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -55,8 +99,11 @@ input {
 }
 
 .site-frame {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(400px, 1fr) minmax(1200px, 3240px) minmax(400px, 1fr);
+  grid-template-columns: 1fr minmax(0, 1240px) 1fr;
   gap: 24px;
   min-height: 100vh;
   padding: 24px;
@@ -71,13 +118,9 @@ input {
 }
 
 .main-shell {
-  background: var(--panel);
-  border: 1px solid rgba(255, 255, 255, 0.65);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(18px);
-  border-radius: 34px;
-  overflow: hidden;
-  transition: filter 0.35s ease, transform 0.35s ease;
+  width: 100%;
+  min-width: 0;
+  margin: 0 auto;
 }
 
 .main-shell.is-blurred {
@@ -147,9 +190,7 @@ input {
   color: var(--text);
 }
 
-.content-wrap {
-  padding: 28px;
-}
+
 
 .hero {
   display: grid;
@@ -341,9 +382,28 @@ input {
   white-space: nowrap;
 }
 
+.profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 24px;
+
+  max-width: 1240px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.search-box {
+  display: block;
+  min-width: 300px;
+}
+
 .profiles-section,
 .about-section {
   margin-top: 30px;
+}
+
+.content-wrap {
+  padding: 28px;
 }
 
 .section-head {
@@ -362,11 +422,6 @@ input {
 .section-head p {
   margin: 0;
   color: var(--muted);
-}
-
-.search-box {
-  display: block;
-  min-width: 300px;
 }
 
 .search-box input {
@@ -404,16 +459,6 @@ input {
   color: #2b7e47;
   background: #f3fff8;
   border-color: rgba(43, 126, 71, 0.14);
-}
-
-.profiles-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 24px;
-
-  max-width: 1240px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .profile-card {
@@ -776,16 +821,6 @@ input {
 
   .search-box {
     min-width: 0;
-  }
-
-  .profiles-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 24px;
-
-    max-width: 1240px;
-    margin-left: auto;
-    margin-right: auto;
   }
 
   .profile-modal {
