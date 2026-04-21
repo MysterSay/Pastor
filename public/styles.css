@@ -31,9 +31,10 @@ body {
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(84, 112, 255, 0.16), transparent 25%),
-    radial-gradient(circle at top right, rgba(21, 58, 170, 0.12), transparent 25%),
-    linear-gradient(180deg, #f7f9ff 0%, #edf2fb 100%);
+    radial-gradient(circle at 15% 18%, rgba(110, 138, 255, 0.22), transparent 18%),
+    radial-gradient(circle at 82% 22%, rgba(90, 124, 255, 0.18), transparent 22%),
+    radial-gradient(circle at 50% 65%, rgba(154, 176, 255, 0.14), transparent 26%),
+    linear-gradient(180deg, #f8faff 0%, #edf2fb 48%, #e9eef9 100%);
   color: var(--text);
 }
 
@@ -64,58 +65,71 @@ input {
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
+  opacity: 1;
 }
 
 .blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.25;
-  animation: floatBlob 20s ease-in-out infinite;
+  filter: blur(90px);
+  opacity: 0.42;
+  animation: floatBlob 22s ease-in-out infinite;
+  mix-blend-mode: screen;
 }
 
 .blob-1 {
-  width: 420px;
-  height: 420px;
-  top: 10%;
-  left: 5%;
-  background: rgba(83, 104, 255, 0.35);
+  width: 520px;
+  height: 520px;
+  top: 3%;
+  left: 2%;
+  background: radial-gradient(circle, rgba(109, 132, 255, 0.72) 0%, rgba(109, 132, 255, 0.18) 55%, transparent 75%);
 }
 
 .blob-2 {
-  width: 520px;
-  height: 520px;
-  top: 40%;
-  right: 8%;
-  background: rgba(70, 130, 255, 0.25);
-  animation-delay: 5s;
+  width: 620px;
+  height: 620px;
+  top: 22%;
+  right: 4%;
+  background: radial-gradient(circle, rgba(85, 118, 255, 0.62) 0%, rgba(85, 118, 255, 0.18) 55%, transparent 75%);
+  animation-delay: 6s;
 }
 
 .blob-3 {
-  width: 400px;
-  height: 400px;
-  bottom: 10%;
-  left: 30%;
-  background: rgba(140, 170, 255, 0.2);
-  animation-delay: 10s;
+  width: 560px;
+  height: 560px;
+  bottom: 0%;
+  left: 26%;
+  background: radial-gradient(circle, rgba(170, 190, 255, 0.56) 0%, rgba(170, 190, 255, 0.16) 55%, transparent 75%);
+  animation-delay: 12s;
 }
 
 @keyframes floatBlob {
   0% {
-    transform: translate(0, 0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
   25% {
-    transform: translate(30px, -20px) scale(1.05);
+    transform: translate3d(34px, -24px, 0) scale(1.06);
   }
   50% {
-    transform: translate(-20px, 30px) scale(0.95);
+    transform: translate3d(-22px, 28px, 0) scale(0.96);
   }
   75% {
-    transform: translate(20px, 10px) scale(1.03);
+    transform: translate3d(26px, 12px, 0) scale(1.04);
   }
   100% {
-    transform: translate(0, 0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
+}
+
+.bg-noise {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.06;
+  background-image:
+    radial-gradient(rgba(20, 33, 78, 0.35) 0.6px, transparent 0.6px);
+  background-size: 18px 18px;
 }
 
 /* ===== LAYOUT ===== */
