@@ -131,17 +131,13 @@ input {
 }
 
 .site-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 22px 28px;
-  border-bottom: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(255,255,255,0.84), rgba(255,255,255,0.68));
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  border-radius: 18px;
+  padding: 16px 24px;
+
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .brand {
