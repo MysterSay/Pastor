@@ -529,37 +529,23 @@ input {
   box-shadow: var(--shadow-soft);
   cursor: pointer;
   transition:
-    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-    filter 0.45s ease,
-    box-shadow 0.18s ease,
-    border-color 0.18s ease;
+    box-shadow 0.22s ease,
+    border-color 0.22s ease;
   will-change: transform, opacity, filter;
+  transform-origin: center center;
 }
 
-.profile-card.is-hidden-before {
-  opacity: 0;
-  transform: translateY(48px) scale(0.98);
-  filter: blur(4px);
-}
-
-.profile-card.is-visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  filter: blur(0);
-}
-
-.profile-card.is-fading-out {
-  opacity: 0.2;
-  transform: translateY(-6px) scale(0.97);
-  filter: blur(1.5px);
-}
-
-.profile-card.is-visible:hover {
-  transform: translateY(-4px) scale(1.01);
+.profile-card:hover {
   box-shadow: 0 20px 40px rgba(21, 40, 98, 0.16);
   border-color: rgba(35, 74, 193, 0.2);
 }
+
+.profile-card.is-active {
+  border-color: rgba(78, 104, 243, 0.4);
+  box-shadow: 0 22px 42px rgba(21, 40, 98, 0.2);
+}
+
+
 
 /* опціонально: верхня зона розчинення списку */
 .profiles-section {
