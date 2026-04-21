@@ -403,8 +403,8 @@ function updateCardsOnScroll() {
 
   const fadeStart = 110;   // тут починається м’яке згасання біля верху
   const fadeEnd = -220;    // тут плитка майже повністю зникла
-  const revealStart = viewportHeight - 40;   // коли входить знизу
-  const revealEnd = viewportHeight - 260;    // коли вже повністю проявлена
+  const revealStart = viewportHeight - 20;   // коли входить знизу
+  const revealEnd = viewportHeight - 240;    // коли вже повністю проявлена
 
   cards.forEach((card) => {
     const rect = card.getBoundingClientRect();
@@ -418,10 +418,10 @@ function updateCardsOnScroll() {
     if (rect.top <= fadeStart) {
       const progress = clamp((fadeStart - rect.top) / (fadeStart - fadeEnd), 0, 1);
 
-      opacity = lerp(1, 0.18, easeInOutCubic(progress));
-      translateY = lerp(0, -10, easeOutCubic(progress));
-      scale = lerp(1, 0.975, easeOutCubic(progress));
-      blur = lerp(0, 1.6, easeOutCubic(progress));
+      opacity = lerp(1, 0.24, easeInOutCubic(progress));
+      translateY = lerp(0, -8, easeOutCubic(progress));
+      scale = lerp(1, 0.982, easeOutCubic(progress));
+      blur = lerp(0, 1.2, easeOutCubic(progress));
     }
 
     // ПОЯВА ЗНИЗУ
