@@ -527,16 +527,15 @@ input {
 /* ===== PROFILE GRID ===== */
 
 .profiles-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 24px;
+  position: relative;
+  min-height: 320px;
   max-width: 1240px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .profile-card {
-  position: relative;
+  position: absolute;
   aspect-ratio: 9 / 16;
   border-radius: 28px;
   overflow: hidden;
