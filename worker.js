@@ -68,7 +68,7 @@ async function queryAllPages({ token, databaseId }) {
 
   while (hasMore) {
     const response = await fetch(
-      `https://api.notion.com/v1/databases/${databaseId}/query`,
+      `https://api.notion.com/v1/data_sources/${databaseId}/query`,
       {
         method: "POST",
         headers: {
@@ -136,7 +136,7 @@ function normalizeNotionPage(page) {
       page?.properties?.Created?.created_time ||
       page?.created_time ||
       new Date(0).toISOString(),
-    isReady: publishStatus.toLowerCase() === "готово",
+    isReady: publishStatus.toLowerCase() === "Готово",
   };
 }
 
